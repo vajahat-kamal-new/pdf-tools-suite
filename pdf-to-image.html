@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PDF to Image Converter</title>
+  <link rel="stylesheet" href="../style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>📷 PDF to Image Converter</h1>
+    <a href="../index.html" style="color:white;">⬅ Back</a>
+  </header>
+
+  <main>
+    <input type="file" id="pdfUpload" accept="application/pdf" />
+    <p>Select a PDF file to convert its pages into images.</p>
+    <div id="previewContainer"></div>
+  </main>
+
+  <script>
+    const pdfUpload = document.getElementById('pdfUpload');
+    const previewContainer = document.getElementById('previewContainer');
+
+    pdfUpload.addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      previewContainer.innerHTML = "Loading PDF...";
+
+      const fileReader = new FileReader();
+      fileReader.onload = async function() {
+        const typedarray = new Uint8Array(this.result);
+
+        const pdf = await pdfjsLib.getDocument({ data: typedarray }).promise;
+        previewContainer.innerHTML = "";
+
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const viewport = page.getViewport({ scale: 2 });
+          const canvas = document.createElement('canvas');
+          const context = canvas.getContext('2d');
+          canvas.height = viewport.height;
+          canvas.width = viewport.width;
+
+          await page.render({ canvasContext: context, viewport: viewport }).promise;
+
+          const img = document.createElement('img');
+          img.src = canvas.toDataURL();
+          img.alt = `Page ${i}`;
+          img.style.maxWidth = "100%";
+          img.style.margin = "10px 0";
+
+          previewContainer.appendChild(img);
+        }
+      };
+      fileReader.readAsArrayBuffer(file);
+    });
+  </script>
+</body>
+</html>

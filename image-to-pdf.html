@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Image to PDF Converter</title>
+  <link rel="stylesheet" href="../style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>🖼️ Image to PDF Converter</h1>
+    <a href="../index.html" style="color:white;">⬅ Back</a>
+  </header>
+
+  <main>
+    <input type="file" id="imageUpload" accept="image/*" multiple />
+    <button id="convertBtn" disabled>Convert to PDF</button>
+    <div id="imagePreview"></div>
+  </main>
+
+  <script>
+    const imageUpload = document.getElementById('imageUpload');
+    const imagePreview = document.getElementById('imagePreview');
+    const convertBtn = document.getElementById('convertBtn');
+
+    let images = [];
+
+    imageUpload.addEventListener('change', () => {
+      imagePreview.innerHTML = "";
+      images = Array.from(imageUpload.files);
+
+      if (images.length === 0) {
+        convertBtn.disabled = true;
+        return;
+      }
+
+      convertBtn.disabled = false;
+
+      images.forEach(imgFile => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          img.style.maxWidth = "150px";
+          img.style.margin = "10px";
+          imagePreview.appendChild(img);
+        };
+        reader.readAsDataURL(imgFile);
+      });
+    });
+
+    convertBtn.addEventListener('click', async () => {
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF();
+
+      for (let i = 0; i < images.length; i++) {
+        const imgData = await readImage(images[i]);
+        const img = new Image();
+        img.src = imgData;
+
+        await new Promise(resolve => {
+          img.onload = () => {
+            const ratio = img.width / img.height;
+            const width = 210;
+            const height = 210 / ratio;
+
+            if (i > 0) pdf.addPage();
+            pdf.addImage(imgData, 'JPEG', 0, 0, width, height);
+            resolve();
+          };
+        });
+      }
+
+      pdf.save('converted.pdf');
+    });
+
+    function readImage(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result);
+        reader.onerror = err => reject(err);
+        reader.readAsDataURL(file);
+      });
+    }
+  </script>
+</body>
+</html>
