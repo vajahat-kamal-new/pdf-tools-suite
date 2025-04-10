@@ -1,4 +1,6 @@
+# Allow all user agents (crawlers) to access all parts of the website
 User-agent: *
 Allow: /
 
+# Specify the location of the sitemap
 Sitemap: https://vajahat-kamal-new.github.io/pdf-tools-suite/sitemap.xml
