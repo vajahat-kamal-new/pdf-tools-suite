@@ -19,13 +19,23 @@
   gtag('config', 'G-QHZTGMTZH7');
 </script>
 <body>
-  <h1>Merge PDF Files</h1>
-  <p>Select two or more PDF files to merge into a single PDF.</p>
-  <input type="file" id="pdfFiles" accept="application/pdf" multiple />
-  <br>
-  <button onclick="mergePDFs()">Merge PDFs</button>
-  <br>
-  <a id="download-link" download="merged.pdf">Download Merged PDF</a>
+  <!-- Header -->
+  <header>
+    <h1>Merge PDFs</h1>
+    <a href="index.html" style="color:white;">⬅ Back to Home</a>
+  </header>
+
+  <!-- Tool content -->
+  <section class="tool-container">
+    <h2>Merge your PDFs</h2>
+    <form action="#">
+      <input type="file" id="pdf1" accept=".pdf" required>
+      <input type="file" id="pdf2" accept=".pdf" required>
+      <button onclick="mergePDFs()">Merge PDFs</button>
+      <a id="download-link" download="merged.pdf">Download Merged PDF</a>
+    </form>
+    <p>Upload two PDF files to merge them into one PDF document.</p>
+  </section>
 
   <script>
     async function mergePDFs() {
