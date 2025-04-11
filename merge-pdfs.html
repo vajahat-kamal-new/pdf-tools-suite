@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Merge PDF Files - PDF Tools Suite</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Merge PDF - PDF Tools Suite</title>
+  <link rel="stylesheet" href="style.css" />
   <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
-  <link rel="stylesheet" href="style.css">
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4191155848667761"
      crossorigin="anonymous"></script>
 </head>
@@ -19,54 +19,58 @@
   gtag('config', 'G-QHZTGMTZH7');
 </script>
 <body>
-  <!-- Header -->
   <header>
-    <h1>Merge PDFs</h1>
-    <a href="index.html" style="color:white;">⬅ Back to Home</a>
+    <h1>PDF Tools Suite</h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="merge-pdf.html" class="active">Merge PDF</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+    </nav>
   </header>
 
-  <!-- Tool content -->
-  <section class="tool-container">
-    <h2>Merge your PDFs</h2>
-    <form action="#">
-      <input type="file" id="pdf1" accept=".pdf" required>
-      <input type="file" id="pdf2" accept=".pdf" required>
+  <main class="tool-container">
+    <h2>Merge PDF Files</h2>
+    <p>Select two or more PDF files and merge them into one.</p>
+
+    <div class="tool-box">
+      <input type="file" id="pdfFiles" accept="application/pdf" multiple>
       <button onclick="mergePDFs()">Merge PDFs</button>
-    </form>
-    <p>Upload two PDF files to merge them into one PDF document.</p>
-  </section>
-<a id="download-link" download="merged.pdf">Download Merged PDF</a>
+      <a id="download-link" style="display:none;" download="merged.pdf">Download Merged PDF</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 PDF Tools Suite | <a href="privacy-policy.html">Privacy Policy</a> | <a href="terms.html">Terms</a></p>
+  </footer>
+
   <script>
     async function mergePDFs() {
       const files = document.getElementById('pdfFiles').files;
-
       if (files.length < 2) {
-        alert('Please select at least 2 PDF files to merge.');
+        alert('Please select at least two PDF files.');
         return;
       }
 
       const mergedPdf = await PDFLib.PDFDocument.create();
 
-      for (let file of files) {
+      for (const file of files) {
         const arrayBuffer = await file.arrayBuffer();
         const pdf = await PDFLib.PDFDocument.load(arrayBuffer);
         const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
-
-        copiedPages.forEach(page => {
-          mergedPdf.addPage(page);
-        });
+        copiedPages.forEach(page => mergedPdf.addPage(page));
       }
 
       const mergedPdfBytes = await mergedPdf.save();
       const blob = new Blob([mergedPdfBytes], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
 
-      const link = document.getElementById('download-link');
-      link.href = url;
-      link.style.display = 'inline-block';
+      const downloadLink = document.getElementById('download-link');
+      downloadLink.href = url;
+      downloadLink.style.display = 'inline-block';
     }
   </script>
-   <!-- Footer -->
+  <!-- Footer -->
   <footer>
     <div class="footer-container">
       <ul>
@@ -80,4 +84,3 @@
   </footer>
 </body>
 </html>
-
