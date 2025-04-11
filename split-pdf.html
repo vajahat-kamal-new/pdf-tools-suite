@@ -1,40 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Split PDF - PDF Tools Suite</title>
-  <link rel="stylesheet" href="style.css">
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4191155848667761"
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4191155848667761"
      crossorigin="anonymous"></script>
 </head>
-   <!-- Google tag (gtag.js) -->
+<!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-QHZTGMTZH7"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'G-QHZTGMTZH7');
 </script>
 <body>
-
   <!-- Header -->
   <header>
     <h1>Split PDF</h1>
     <a href="index.html" style="color:white;">⬅ Back to Home</a>
   </header>
 
-  <!-- Tool content -->
-  <section class="tool-container">
-    <h2>Split your PDF</h2>
-    <form action="#">
-      <input type="file" id="pdf" accept=".pdf" required>
-      <input type="number" id="split-page" placeholder="Page number to split at" required>
-      <button type="submit">Split PDF</button>
-    </form>
-    <p>Upload a PDF file and specify the page number to split it.</p>
-  </section>
+  <main class="tool-container">
+    <h2>Split PDF into Individual Pages</h2>
+    <p>Select a PDF file to split each page into a separate PDF file.</p>
+
+    <div class="tool-box">
+      <input type="file" id="pdfFile" accept="application/pdf">
+      <button onclick="splitPDF()">Split PDF</button>
+      <div id="downloads"></div>
+    </div>
+  </main>
+
+  <script>
+    async function splitPDF() {
+      const fileInput = document.getElementById('pdfFile');
+      const file = fileInput.files[0];
+
+      if (!file) {
+        alert('Please select a PDF file.');
+        return;
+      }
+
+      const arrayBuffer = await file.arrayBuffer();
+      const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+      const totalPages = pdfDoc.getPageCount();
+
+      const downloadsDiv = document.getElementById('downloads');
+      downloadsDiv.innerHTML = '';
+
+      for (let i = 0; i < totalPages; i++) {
+        const newPdf = await PDFLib.PDFDocument.create();
+        const [copiedPage] = await newPdf.copyPages(pdfDoc, [i]);
+        newPdf.addPage(copiedPage);
+
+        const pdfBytes = await newPdf.save();
+        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `page-${i + 1}.pdf`;
+        link.textContent = `Download Page ${i + 1}`;
+        link.style.display = 'block';
+        link.style.marginTop = '10px';
+        downloadsDiv.appendChild(link);
+      }
+    }
+  </script>
 
   <!-- Footer -->
   <footer>
@@ -48,6 +84,5 @@
       <p>&copy; 2025 PDF Tools Suite. All rights reserved.</p>
     </div>
   </footer>
-
 </body>
 </html>
