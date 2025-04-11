@@ -2,10 +2,30 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Merge PDFs - PDF Tools Suite</title>
-  <link rel="stylesheet" href="style.css">
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4191155848667761"
+  <title>Merge PDF Files - PDF Tools Suite</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 40px;
+    }
+    input[type="file"] {
+      margin: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+    #download-link {
+      display: none;
+      margin-top: 20px;
+    }
+  </style>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4191155848667761"
      crossorigin="anonymous"></script>
 </head>
    <!-- Google tag (gtag.js) -->
@@ -18,36 +38,44 @@
   gtag('config', 'G-QHZTGMTZH7');
 </script>
 <body>
+  <h1>Merge PDF Files</h1>
+  <p>Select two or more PDF files to merge into a single PDF.</p>
+  <input type="file" id="pdfFiles" accept="application/pdf" multiple />
+  <br>
+  <button onclick="mergePDFs()">Merge PDFs</button>
+  <br>
+  <a id="download-link" download="merged.pdf">Download Merged PDF</a>
 
-  <!-- Header -->
-  <header>
-    <h1>Merge PDFs</h1>
-    <a href="index.html" style="color:white;">⬅ Back to Home</a>
-  </header>
+  <script>
+    async function mergePDFs() {
+      const files = document.getElementById('pdfFiles').files;
 
-  <!-- Tool content -->
-  <section class="tool-container">
-    <h2>Merge your PDFs</h2>
-    <form action="#">
-      <input type="file" id="pdf1" accept=".pdf" required>
-      <input type="file" id="pdf2" accept=".pdf" required>
-      <button type="submit">Merge PDFs</button>
-    </form>
-    <p>Upload two PDF files to merge them into one PDF document.</p>
-  </section>
+      if (files.length < 2) {
+        alert('Please select at least 2 PDF files to merge.');
+        return;
+      }
 
-  <!-- Footer -->
-  <footer>
-    <div class="footer-container">
-      <ul>
-        <li><a href="about.html">About Us</a></li>
-        <li><a href="contact.html">Contact Us</a></li>
-        <li><a href="privacy-policy.html">Privacy Policy</a></li>
-        <li><a href="terms-of-service.html">Terms of Service</a></li>
-      </ul>
-      <p>&copy; 2025 PDF Tools Suite. All rights reserved.</p>
-    </div>
-  </footer>
+      const mergedPdf = await PDFLib.PDFDocument.create();
 
+      for (let file of files) {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await PDFLib.PDFDocument.load(arrayBuffer);
+        const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+
+        copiedPages.forEach(page => {
+          mergedPdf.addPage(page);
+        });
+      }
+
+      const mergedPdfBytes = await mergedPdf.save();
+      const blob = new Blob([mergedPdfBytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+
+      const link = document.getElementById('download-link');
+      link.href = url;
+      link.style.display = 'inline-block';
+    }
+  </script>
 </body>
 </html>
+
