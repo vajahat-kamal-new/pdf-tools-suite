@@ -1,47 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Extract Text - PDF Tools Suite</title>
-  <link rel="stylesheet" href="style.css">
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4191155848667761"
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://unpkg.com/pdfjs-dist/build/pdf.min.js"></script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4191155848667761"
      crossorigin="anonymous"></script>
 </head>
-   <!-- Google tag (gtag.js) -->
+<!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-QHZTGMTZH7"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'G-QHZTGMTZH7');
 </script>
 <body>
-
   <!-- Header -->
   <header>
-    <h1>Extract Text from PDF</h1>
-    <nav>
-      <ul>
-        <li><a href="index.html">Home</a></li>
-        <li><a href="about.html">About Us</a></li>
-        <li><a href="contact.html">Contact Us</a></li>
-        <li><a href="privacy-policy.html">Privacy Policy</a></li>
-        <li><a href="terms-of-service.html">Terms of Service</a></li>
-      </ul>
-    </nav>
+    <h1>Extract Text</h1>
+    <a href="index.html" style="color:white;">⬅ Back to Home</a>
   </header>
 
-  <!-- Tool content -->
-  <section class="tool-container">
-    <h2>Extract Text from your PDF</h2>
-    <form action="#">
-      <input type="file" id="pdf-file" accept=".pdf" required>
-      <button type="submit">Extract Text</button>
-    </form>
-    <p>Upload a PDF file to extract its text content.</p>
-  </section>
+  <main class="tool-container">
+    <h2>Extract Text from PDF</h2>
+    <p>Select a PDF file to extract all readable text.</p>
+
+    <div class="tool-box">
+      <input type="file" id="pdfFile" accept="application/pdf"><br><br>
+      <button onclick="extractText()">Extract Text</button><br><br>
+      <textarea id="outputText" rows="15" style="width:100%;" readonly></textarea>
+    </div>
+  </main>
+
+  <script>
+    async function extractText() {
+      const fileInput = document.getElementById('pdfFile');
+      const outputText = document.getElementById('outputText');
+      outputText.value = '';
+
+      if (!fileInput.files.length) {
+        alert("Please select a PDF file.");
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const fileReader = new FileReader();
+
+      fileReader.onload = async function () {
+        const typedArray = new Uint8Array(this.result);
+        const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
+
+        let fullText = '';
+        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+          const page = await pdf.getPage(pageNum);
+          const content = await page.getTextContent();
+          const strings = content.items.map(item => item.str).join(' ');
+          fullText += `Page ${pageNum}:\n${strings}\n\n`;
+        }
+
+        outputText.value = fullText.trim();
+      };
+
+      fileReader.readAsArrayBuffer(file);
+    }
+  </script>
 
   <!-- Footer -->
   <footer>
@@ -55,6 +80,5 @@
       <p>&copy; 2025 PDF Tools Suite. All rights reserved.</p>
     </div>
   </footer>
-
 </body>
 </html>
