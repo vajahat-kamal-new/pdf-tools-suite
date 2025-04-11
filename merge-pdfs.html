@@ -32,11 +32,10 @@
       <input type="file" id="pdf1" accept=".pdf" required>
       <input type="file" id="pdf2" accept=".pdf" required>
       <button onclick="mergePDFs()">Merge PDFs</button>
-      <a id="download-link" download="merged.pdf">Download Merged PDF</a>
     </form>
     <p>Upload two PDF files to merge them into one PDF document.</p>
   </section>
-
+<a id="download-link" download="merged.pdf">Download Merged PDF</a>
   <script>
     async function mergePDFs() {
       const files = document.getElementById('pdfFiles').files;
