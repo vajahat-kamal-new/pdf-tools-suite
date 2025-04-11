@@ -1,40 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Reorder Pages - PDF Tools Suite</title>
-  <link rel="stylesheet" href="style.css">
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4191155848667761"
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4191155848667761"
      crossorigin="anonymous"></script>
 </head>
-   <!-- Google tag (gtag.js) -->
+<!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-QHZTGMTZH7"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'G-QHZTGMTZH7');
 </script>
 <body>
-
   <!-- Header -->
   <header>
-    <h1>Reorder Pages in PDF</h1>
+    <h1>Reorder PDF Pages</h1>
     <a href="index.html" style="color:white;">⬅ Back to Home</a>
   </header>
 
-  <!-- Tool content -->
-  <section class="tool-container">
-    <h2>Reorder Pages in your PDF</h2>
-    <form action="#">
-      <input type="file" id="pdf-file" accept=".pdf" required>
-      <input type="text" id="page-order" placeholder="Enter page numbers to reorder (e.g., 1,2,3)" required>
-      <button type="submit">Reorder Pages</button>
-    </form>
-    <p>Upload a PDF file and enter the new page order.</p>
-  </section>
+  <main class="tool-container">
+    <h2>Reorder PDF Pages</h2>
+    <p>Select a PDF and enter a new page order (e.g., "3,1,2") to rearrange pages.</p>
+
+    <div class="tool-box">
+      <input type="file" id="pdfFile" accept="application/pdf"><br><br>
+      <label for="order">Page Order (comma-separated):</label><br>
+      <input type="text" id="order" placeholder="e.g. 3,1,2"><br><br>
+      <button onclick="reorderPages()">Reorder</button><br><br>
+      <a id="download-link" style="display:none;" download="reordered.pdf">Download PDF</a>
+    </div>
+  </main>
+
+  <script>
+    async function reorderPages() {
+      const fileInput = document.getElementById('pdfFile');
+      const orderInput = document.getElementById('order');
+      const downloadLink = document.getElementById('download-link');
+
+      if (!fileInput.files.length || !orderInput.value.trim()) {
+        alert("Please select a PDF file and provide a new page order.");
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const pageOrder = orderInput.value.split(',').map(num => parseInt(num.trim()) - 1); // convert to 0-index
+
+      const arrayBuffer = await file.arrayBuffer();
+      const originalPdf = await PDFLib.PDFDocument.load(arrayBuffer);
+      const totalPages = originalPdf.getPageCount();
+
+      if (pageOrder.some(index => isNaN(index) || index < 0 || index >= totalPages)) {
+        alert("Invalid page order. Check your input.");
+        return;
+      }
+
+      const newPdf = await PDFLib.PDFDocument.create();
+      const copiedPages = await newPdf.copyPages(originalPdf, pageOrder);
+      copiedPages.forEach(page => newPdf.addPage(page));
+
+      const pdfBytes = await newPdf.save();
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      
+      downloadLink.href = url;
+      downloadLink.style.display = 'inline-block';
+    }
+  </script>
 
   <!-- Footer -->
   <footer>
@@ -48,6 +85,5 @@
       <p>&copy; 2025 PDF Tools Suite. All rights reserved.</p>
     </div>
   </footer>
-
 </body>
 </html>
