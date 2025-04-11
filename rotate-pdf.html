@@ -1,44 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Rotate PDF - PDF Tools Suite</title>
-  <link rel="stylesheet" href="style.css">
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4191155848667761"
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4191155848667761"
      crossorigin="anonymous"></script>
 </head>
-   <!-- Google tag (gtag.js) -->
+<!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-QHZTGMTZH7"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'G-QHZTGMTZH7');
 </script>
 <body>
-
   <!-- Header -->
   <header>
     <h1>Rotate PDF</h1>
     <a href="index.html" style="color:white;">⬅ Back to Home</a>
   </header>
 
-  <!-- Tool content -->
-  <section class="tool-container">
-    <h2>Rotate your PDF</h2>
-    <form action="#">
-      <input type="file" id="pdf-file" accept=".pdf" required>
+  <main class="tool-container">
+    <h2>Rotate PDF Pages</h2>
+    <p>Select a PDF and choose the angle to rotate each page.</p>
+
+    <div class="tool-box">
+      <input type="file" id="pdfFile" accept="application/pdf"><br><br>
+      <label for="rotation">Rotate by:</label>
       <select id="rotation">
         <option value="90">90°</option>
         <option value="180">180°</option>
         <option value="270">270°</option>
-      </select>
-      <button type="submit">Rotate PDF</button>
-    </form>
-    <p>Upload a PDF file and choose the rotation angle.</p>
-  </section>
+      </select><br><br>
+      <button onclick="rotatePDF()">Rotate PDF</button>
+      <a id="download-link" style="display:none;" download="rotated.pdf">Download PDF</a>
+    </div>
+  </main>
+
+  <script>
+    async function rotatePDF() {
+      const fileInput = document.getElementById('pdfFile');
+      const rotation = parseInt(document.getElementById('rotation').value);
+
+      if (!fileInput.files.length) {
+        alert("Please select a PDF file.");
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const arrayBuffer = await file.arrayBuffer();
+      const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+      const pages = pdfDoc.getPages();
+
+      pages.forEach(page => {
+        page.setRotation(PDFLib.degrees(rotation));
+      });
+
+      const modifiedBytes = await pdfDoc.save();
+      const blob = new Blob([modifiedBytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+
+      const downloadLink = document.getElementById('download-link');
+      downloadLink.href = url;
+      downloadLink.style.display = 'inline-block';
+    }
+  </script>
 
   <!-- Footer -->
   <footer>
@@ -52,6 +82,5 @@
       <p>&copy; 2025 PDF Tools Suite. All rights reserved.</p>
     </div>
   </footer>
-
 </body>
 </html>
